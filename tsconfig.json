@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "preserveConstEnums": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "declaration": true,
+    "target": "ES2016",
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "types": ["node"]
+  },
+  "include": ["./src"]
+}

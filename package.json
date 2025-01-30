@@ -1,0 +1,37 @@
+{
+  "name": "@ssets/crypto",
+  "version": "1.0.0",
+  "files": ["dist"],
+  "exports": {
+    "./base64": {
+      "import": "./dist/base64.js",
+      "types": "./dist/base64.d.ts"
+    },
+    "./buffer": {
+      "import": "./dist/buffer.js",
+      "types": "./dist/buffer.d.ts"
+    },
+    "./hash": {
+      "import": "./dist/hash.js",
+      "types": "./dist/hash.d.ts"
+    },
+    "./hmac": {
+      "import": "./dist/hmac.js",
+      "types": "./dist/hmac.d.ts"
+    },
+    "./ieee754": {
+      "import": "./dist/ieee754.js",
+      "types": "./dist/ieee754.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepack": "tsc"
+  },
+  "author": "SSE World",
+  "license": "MIT",
+  "description": "",
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
