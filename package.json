@@ -1,7 +1,9 @@
 {
   "name": "@ssets/crypto",
   "version": "1.0.2",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     "./base64": {
       "import": "./dist/base64.js",
@@ -36,6 +38,7 @@
   "license": "MIT",
   "description": "",
   "devDependencies": {
+    "@types/node": "^22.12.0",
     "typescript": "^5.7.3"
   }
 }
