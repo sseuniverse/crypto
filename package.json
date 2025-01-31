@@ -1,6 +1,6 @@
 {
   "name": "@ssets/crypto",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "files": ["dist"],
   "exports": {
     "./base64": {
@@ -22,6 +22,10 @@
     "./ieee754": {
       "import": "./dist/ieee754.js",
       "types": "./dist/ieee754.d.ts"
+    },
+    "./punycode": {
+      "import": "./dist/punycode.js",
+      "types": "./dist/punycode.d.ts"
     }
   },
   "scripts": {
