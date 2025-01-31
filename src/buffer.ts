@@ -1399,7 +1399,7 @@ function fromString(string: string, encoding: string | number) {
     throw new TypeError("Unknown encoding: " + encoding);
   }
 
-  const length = this.byteLength(string, encoding) | 0;
+  const length = Buffer.byteLength(string, encoding) | 0;
   let buf = createBuffer(length);
   const actual = buf.write(string, 0, length, encoding);
 

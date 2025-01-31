@@ -1,5 +1,6 @@
 import { BinaryLike } from "crypto";
 import { BinaryToTextEncoding } from "./hmac";
+import { Buffer } from "./buffer"
 
 // Define options for the Hash class
 interface HashOptions {
