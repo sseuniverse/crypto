@@ -20,6 +20,8 @@ body:
         - hash
         - hmac
         - ieee754
+        - ms
+        - qs
   
   - type: markdown
     attributes:

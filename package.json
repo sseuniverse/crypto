@@ -1,6 +1,6 @@
 {
   "name": "@ssets/crypto",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "files": [
     "dist"
   ],
@@ -28,7 +28,12 @@
     "./punycode": {
       "import": "./dist/punycode.js",
       "types": "./dist/punycode.d.ts"
-    }
+    },
+    "./qs": {
+      "import": "./dist/qs/index.js",
+      "types": "./dist/qs/index.d.ts"
+    },
+    "./*": "./dist/*"
   },
   "scripts": {
     "build": "tsc",
@@ -38,7 +43,26 @@
   "license": "MIT",
   "description": "",
   "devDependencies": {
+    "@types/lodash.includes": "^4.3.9",
+    "@types/lodash.isboolean": "^3.0.9",
+    "@types/lodash.isinteger": "^4.0.9",
+    "@types/lodash.isnumber": "^3.0.9",
+    "@types/lodash.isplainobject": "^4.0.9",
+    "@types/lodash.isstring": "^4.0.9",
+    "@types/lodash.once": "^4.1.9",
     "@types/node": "^22.12.0",
+    "@types/semver": "^7.5.8",
     "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "lodash.includes": "^4.3.0",
+    "lodash.isboolean": "^3.0.3",
+    "lodash.isinteger": "^4.0.4",
+    "lodash.isnumber": "^3.0.3",
+    "lodash.isplainobject": "^4.0.6",
+    "lodash.isstring": "^4.0.1",
+    "lodash.once": "^4.1.1",
+    "semver": "^7.7.0",
+    "side-channel": "^1.1.0"
   }
 }
