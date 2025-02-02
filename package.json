@@ -39,7 +39,7 @@
   "scripts": {
     "build": "tsc",
     "prepack": "tsc",
-    "chm": "node ./changelog/index.js"
+    "changelog": "node ./changelog/index.js"
   },
   "author": "SSE World",
   "license": "MIT",
