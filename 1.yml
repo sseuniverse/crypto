@@ -1,0 +1,59 @@
+name: Node.js Package
+
+on:
+  push:
+    tags:
+      - "v*"
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci
+      - name: Publish Changed Packages
+        run: |
+          # Loop through each package in the packages directory
+          for package in packages/*; do
+            if [ -d "$package" ]; then
+              # Check if the package.json file exists
+              if [ -f "$package/package.json" ]; then
+                # Get the current version from package.json
+                current_version=$(jq -r .version "$package/package.json")
+                # Get the previous version from the git history
+                previous_version=$(git show HEAD~1:"$package/package.json" | jq -r .version 2>/dev/null)
+
+                # If the current version is different from the previous version, publish the package
+                if [ "$current_version" != "$previous_version" ]; then
+                  echo "Publishing $package with version $current_version"
+                  (cd "$package" && npm publish --provenance --access public)
+                else
+                  echo "No version change for $package"
+                fi
+              fi
+            fi
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
