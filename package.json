@@ -40,6 +40,9 @@
     },
     "./*": "./dist/*"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "prepack": "tsc",
@@ -47,7 +50,7 @@
   },
   "author": "SSE World",
   "license": "MIT",
-  "description": "",
+  "description": "I have tried to create the best `Crypto` for the users",
   "devDependencies": {
     "@types/jws": "^3.2.10",
     "@types/lodash.includes": "^4.3.9",
@@ -75,5 +78,13 @@
     "readable-stream": "^4.7.0",
     "semver": "^7.7.0",
     "side-channel": "^1.1.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sseuniverse/crypto.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sseuniverse/crypto/issues"
+  },
+  "homepage": "https://github.com/sseuniverse/crypto#readme"
 }
