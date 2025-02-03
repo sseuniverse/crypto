@@ -45,7 +45,7 @@ jobs:
       - name: This release will publish the following packages
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            yarn release-tool version --dry patch
+            npx release-tool version --dry patch
           else
             git diff --name-only HEAD^..HEAD
           fi;
@@ -73,7 +73,7 @@ jobs:
         if: needs.check-release-type.outputs.is-breaking-prerelease == 'false'
         run: |
           make new-version-checklist
-          yarn release-tool version --yes patch
+          npx release-tool version --yes patch
 
       - name: Create new version (breaking prerelease)
         if: needs.check-release-type.outputs.is-breaking-prerelease == 'true'
@@ -128,13 +128,13 @@ jobs:
   #         BREAKING_PRERELEASE: ${{ needs.check-release-type.outputs.is-breaking-prerelease == 'true' || '' }}
 
   #     - name: Publish to npm
-  #       run: yarn release-tool publish --yes
+  #       run: npx release-tool publish --yes
   #       if: needs.check-release-type.outputs.is-breaking-prerelease == 'false'
   #       env:
   #         YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   #     - name: Publish to npm (breaking prerelease)
-  #       run: yarn release-tool publish --yes --tag next --tag-version-prefix tmp.v
+  #       run: npx release-tool publish --yes --tag next --tag-version-prefix tmp.v
   #       if: needs.check-release-type.outputs.is-breaking-prerelease == 'true'
   #       env:
   #         YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
