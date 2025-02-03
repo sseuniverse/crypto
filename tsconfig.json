@@ -12,5 +12,6 @@
     "jsx": "react-jsx",
     "types": ["node", "semver"]
   },
-  "include": ["./src"]
+  "include": ["./src"],
+  "exclude": ["./src/jwt", "./src/cipher"]
 }
