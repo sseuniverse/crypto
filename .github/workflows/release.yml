@@ -198,13 +198,12 @@ jobs:
     name: Push release commit to "main"
     runs-on: ubuntu-latest
     needs:
-      - npm-release
+      # - npm-release
       - github-release
       - git-version
       - check-release-type
     if: |
       always() &&
-      needs.npm-release.result == 'success' &&
       needs.github-release.result == 'success' &&
       needs.github-release.outputs.is-main
     steps:
