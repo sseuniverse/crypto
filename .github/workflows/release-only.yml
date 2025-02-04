@@ -15,6 +15,9 @@ jobs:
       - name: Checkout git repository
         uses: actions/checkout@master
 
+      - name: Add repository to safe directories
+        run: git config --global --add safe.directory /github/workspace
+
       - name: Bump version and push tag
         uses: minddocdev/mou-version-action@master
         id: bump_version
