@@ -6,26 +6,27 @@ on:
   workflow_dispatch:
 
 jobs:
-  release:
+  bump:
     runs-on: ubuntu-latest
+    env:
+      APP: SSE Crypto
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout git repository
+        uses: actions/checkout@master
 
-      - name: Branch matches
-        if: startsWith(github.ref, 'refs/tags/')
-        run: echo "Branch matches tag"
-
-      - name: Generate changelog
-        uses: mikepenz/release-changelog-builder-action@v2
-
-      - name: Get release tags
-        run: echo "Get release tags"
-
-      - name: Publish GitHub release
-        uses: softprops/action-gh-release@v1
+      - name: Bump version and push tag
+        uses: minddocdev/mou-version-action@master
+        id: bump_version
         with:
-          files: |
-            dist/**
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          prefix: ${{ env.APP }}@
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release
+        uses: minddocdev/mou-release-action@master
+        with:
+          app: ${{ env.APP }}
+          releaseName: ${{ env.APP }} ${{ steps.bump_version.outputs.version }}
+          releaseTag: ${{ steps.bump_version.outputs.tag }}
+          templatePath: RELEASE_DRAFT/default.md
+          token: ${{ secrets.GITHUB_TOKEN }}
