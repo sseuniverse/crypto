@@ -8,28 +8,28 @@ on:
 jobs:
   bump:
     runs-on: ubuntu-latest
-    env:
-      APP: SSE Crypto
+    # env:
+    #   APP: SSE Crypto
 
     steps:
       - name: Checkout git repository
         uses: actions/checkout@master
 
-      - name: Add repository to safe directories
-        run: git config --global --add safe.directory /github/workspace
+      # - name: Add repository to safe directories
+      #   run: git config --global --add safe.directory /github/workspace
 
-      - name: Bump version and push tag
-        uses: minddocdev/mou-version-action@master
-        id: bump_version
-        with:
-          prefix: ${{ env.APP }}@
-          token: ${{ github.token }}
+      # - name: Bump version and push tag
+      #   uses: minddocdev/mou-version-action@master
+      #   id: bump_version
+      #   with:
+      #     prefix: ${{ env.APP }}@
+      #     token: ${{ github.token }}
 
       - name: Create Release
         uses: minddocdev/mou-release-action@master
         with:
-          app: ${{ env.APP }}
-          releaseName: ${{ env.APP }} ${{ steps.bump_version.outputs.version }}
-          releaseTag: ${{ steps.bump_version.outputs.tag }}
+          # app: ${{ env.APP }}
+          # releaseName: ${{ env.APP }} ${{ steps.bump_version.outputs.version }}
+          # releaseTag: ${{ steps.bump_version.outputs.tag }}
           templatePath: RELEASE_DRAFT/default.md
           token: ${{ github.token }}
