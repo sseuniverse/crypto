@@ -20,7 +20,7 @@ jobs:
         id: bump_version
         with:
           prefix: ${{ env.APP }}@
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ github.token }}
 
       - name: Create Release
         uses: minddocdev/mou-release-action@master
@@ -29,4 +29,4 @@ jobs:
           releaseName: ${{ env.APP }} ${{ steps.bump_version.outputs.version }}
           releaseTag: ${{ steps.bump_version.outputs.tag }}
           templatePath: RELEASE_DRAFT/default.md
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ github.token }}
