@@ -10,18 +10,10 @@ body:
         **Describe the bug**
         A clear and concise description of what the bug is.
 
-  - type: dropdown
+  - type: input
     id: file_selection
     attributes:
       label: "Select the file or folder where the error occurred:"
-      options:
-        - Buffer
-        - base64
-        - hash
-        - hmac
-        - ieee754
-        - ms
-        - qs
   
   - type: markdown
     attributes:
