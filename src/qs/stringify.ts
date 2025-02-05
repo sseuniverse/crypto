@@ -1,3 +1,8 @@
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
+ */
+
 "use strict";
 
 import getSideChannel from "side-channel";

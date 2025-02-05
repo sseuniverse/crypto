@@ -1,3 +1,8 @@
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
+ */
+
 // Helpers.
 const s = 1000;
 const m = s * 60;

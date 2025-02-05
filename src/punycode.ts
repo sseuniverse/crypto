@@ -1,3 +1,8 @@
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
+ */
+
 "use strict";
 
 /** Highest positive signed 32-bit float value */

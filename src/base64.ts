@@ -1,11 +1,7 @@
-/*!
- * The buffer module from node.js, for the browser module.
- *
+/*
  * @author   SSE World <http://sseworld.github.io/>
  * @license  MIT
- * Better version of `base64-js` package of npm
  */
-/* eslint-disable no-proto */
 
 "use strict";
 

@@ -1,3 +1,8 @@
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
+ */
+
 export const BCRYPT_SALT_LEN = 16;
 export const GENERATE_SALT_DEFAULT_LOG2_ROUNDS = 10;
 export const BLOWFISH_NUM_ROUNDS = 16;

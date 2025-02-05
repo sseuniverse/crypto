@@ -1,3 +1,7 @@
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
+ */
 import { decodeBase64, encodeBase64 } from "./base64";
 import {
   BCRYPT_SALT_LEN,

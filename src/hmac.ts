@@ -1,3 +1,8 @@
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
+ */
+
 import { Buffer } from "./buffer";
 import { Hash, createHash as sseCreateHash } from "./hash";
 import { Encoding, BinaryLike, BufferEncoding } from "./types";

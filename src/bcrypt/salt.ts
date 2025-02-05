@@ -1,3 +1,7 @@
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
+ */
 import { random } from "./random";
 import { encodeBase64 } from "./base64";
 import {

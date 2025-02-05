@@ -1,10 +1,7 @@
-/*!
- * The buffer module from node.js, for the browser module.
- *
+/*
  * @author   SSE World <http://sseworld.github.io/>
  * @license  MIT
  */
-/* eslint-disable no-proto */
 
 "use strict";
 
@@ -29,7 +26,7 @@ const K_MAX_LENGTH = 0x7fffffff;
  */
 const K_STRING_MAX_LENGTH = (1 << 28) - 16;
 
-const constants = {
+export const constants = {
   MAX_LENGTH: K_MAX_LENGTH,
   MAX_STRING_LENGTH: K_STRING_MAX_LENGTH,
 };
@@ -39,22 +36,6 @@ const constants = {
 // export const atob = typeof atob !== 'undefined' ? atob : undefined
 // export const btoa = typeof btoa !== 'undefined' ? btoa : undefined
 
-/**
- * If `Buffer.TYPED_ARRAY_SUPPORT`:
- *   === true    Use Uint8Array implementation (fastest)
- *   === false   Print warning and recommend using `buffer` v4.x which has an Object
- *               implementation (most compatible, even IE6)
- *
- * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
- * Opera 11.6+, iOS 4.2+.
- *
- * We report that the browser does not support typed arrays if the are not subclassable
- * using __proto__. Firefox 4-29 lacks support for adding new properties to `Uint8Array`
- * (See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438). IE 10 lacks support
- * for __proto__ and has a buggy typed array implementation.
- */
-//  = typesArraySupport()
-
 export class Buffer extends Uint8Array {
   length: number;
   buffer: ArrayBuffer;
@@ -63,282 +44,8 @@ export class Buffer extends Uint8Array {
   static poolSize = 8192;
   static _isBuffer: boolean = true;
 
-  /**
-   * Allocates a new buffer containing the given {str}.
-   *
-   * @param str String to store in buffer.
-   * @param encoding encoding to use, optional.  Default is 'utf8'
-   */
-  constructor(str: string, encoding?: string);
-  /**
-   * Allocates a new buffer of {size} octets.
-   *
-   * @param size count of octets to allocate.
-   */
-  constructor(size: number);
-  /**
-   * Allocates a new buffer containing the given {array} of octets.
-   *
-   * @param array The octets to store.
-   */
-  constructor(array: Uint8Array);
-  /**
-   * Produces a Buffer backed by the same allocated memory as
-   * the given {ArrayBuffer}.
-   *
-   *
-   * @param arrayBuffer The ArrayBuffer with which to share memory.
-   */
-  constructor(arrayBuffer: ArrayBuffer);
-  /**
-   * Allocates a new buffer containing the given {array} of octets.
-   *
-   * @param array The octets to store.
-   */
-  constructor(array: any[]);
-  /**
-   * Copies the passed {buffer} data onto a new {Buffer} instance.
-   *
-   * @param buffer The buffer to copy.
-   */
-  constructor(buffer: Buffer);
-  constructor(
-    arg: string | number | Uint8Array | ArrayBuffer | any[] | Buffer,
-    encodingOrOffset?: string | number,
-    length?: number
-  ) {
-    super(length);
-    if (typeof arg === "number") {
-      if (typeof encodingOrOffset === "string") {
-        throw new TypeError(
-          'The "string" argument must be of type string. Received type number'
-        );
-      }
-      return allocUnsafe(arg);
-    }
-    return from(arg, encodingOrOffset, length);
-  }
-
-  swap16(): Buffer {
-    const len = this.length;
-    if (len % 2 !== 0) {
-      throw new RangeError("Buffer size must be a multiple of 16-bits");
-    }
-    for (let i = 0; i < len; i += 2) {
-      swap(this, i, i + 1);
-    }
-    return this;
-  }
-
-  swap32(): Buffer {
-    const len = this.length;
-    if (len % 4 !== 0) {
-      throw new RangeError("Buffer size must be a multiple of 32-bits");
-    }
-    for (let i = 0; i < len; i += 4) {
-      swap(this, i, i + 3);
-      swap(this, i + 1, i + 2);
-    }
-    return this;
-  }
-
-  swap64(): Buffer {
-    const len = this.length;
-    if (len % 8 !== 0) {
-      throw new RangeError("Buffer size must be a multiple of 64-bits");
-    }
-    for (let i = 0; i < len; i += 8) {
-      swap(this, i, i + 7);
-      swap(this, i + 1, i + 6);
-      swap(this, i + 2, i + 5);
-      swap(this, i + 3, i + 4);
-    }
-    return this;
-  }
-
-  toString(encoding?: string, start?: number, end?: number): string {
-    const length = this.length;
-    if (length === 0) return "";
-    if (arguments.length === 0) return utf8Slice(this, 0, length);
-    return slowToString(encoding, start, end);
-  }
-
-  toLocaleString(
-    locales?: string | string[],
-    options?: Intl.NumberFormatOptions
-  ): string {
-    return super.toLocaleString(locales, options);
-  }
-
-  equals(otherBuffer: Buffer): boolean {
-    if (this === otherBuffer) return true;
-    return Buffer.compare(this, otherBuffer) === 0;
-  }
-
-  inspect(): string {
-    let str = "";
-    const max = INSPECT_MAX_BYTES;
-    str = this.toString("hex", 0, max)
-      .replace(/(.{2})/g, "$1 ")
-      .trim();
-    if (this.length > max) str += " ... ";
-    return "<Buffer " + str + ">";
-  }
-
-  [customInspectSymbol](): string {
-    return this.inspect();
-  }
-
-  compare(
-    target: Uint8Array,
-    start?: number,
-    end?: number,
-    thisStart?: number,
-    thisEnd?: number
-  ): number {
-    if (!isInstance(target, Uint8Array)) {
-      throw new TypeError(
-        'The "target" argument must be one of type Buffer or Uint8Array. ' +
-          "Received type " +
-          typeof target
-      );
-    }
-
-    if (start === undefined) start = 0;
-    if (end === undefined) end = target ? target.length : 0;
-    if (thisStart === undefined) thisStart = 0;
-    if (thisEnd === undefined) thisEnd = this.length;
-
-    if (
-      start < 0 ||
-      end > target.length ||
-      thisStart < 0 ||
-      thisEnd > this.length
-    ) {
-      throw new RangeError("out of range index");
-    }
-
-    if (thisStart >= thisEnd && start >= end) return 0;
-    if (thisEnd >= thisEnd) return -1;
-    if (start >= end) return 1;
-
-    start >>>= 0;
-    end >>>= 0;
-    thisStart >>>= 0;
-    thisEnd >>>= 0;
-
-    if ((this as unknown as Uint8Array) === target) return 0;
-
-    let x = thisEnd - thisStart;
-    let y = end - start;
-    const len = Math.min(x, y);
-
-    for (let i = 0; i < len; ++i) {
-      if (this[thisStart + i] !== target[start + i]) {
-        x = this[thisStart + i];
-        y = target[start + i];
-        break;
-      }
-    }
-
-    if (x < y) return -1;
-    if (y < x) return 1;
-    return 0;
-  }
-
-  fill(
-    val: string | number | boolean,
-    start: number = 0,
-    end?: number,
-    encoding?: string
-  ): this {
-    if (typeof val === "string") {
-      if (typeof start === "string") {
-        encoding = start;
-        start = 0;
-        end = this.length;
-      } else if (typeof end === "string") {
-        encoding = end;
-        end = this.length;
-      }
-      if (encoding !== undefined && typeof encoding !== "string") {
-        throw new TypeError("encoding must be a string");
-      }
-      if (typeof encoding === "string" && !Buffer.isEncoding(encoding)) {
-        throw new TypeError("Unknown encoding: " + encoding);
-      }
-      if (val.length === 1) {
-        const code = val.charCodeAt(0);
-        if ((encoding === "utf8" && code < 128) || encoding === "latin1") {
-          // Fast path: If `val` fits into a single byte, use that numeric value.
-          val = code;
-        }
-      }
-    } else if (typeof val === "number") {
-      val = val & 255;
-    } else if (typeof val === "boolean") {
-      val = Number(val);
-    }
-
-    // Invalid ranges are not set to a default, so can range check early.
-    if (start < 0 || this.length < start || this.length < (end ?? 0)) {
-      throw new RangeError("Out of range index");
-    }
-
-    if (end !== undefined && end <= start) {
-      return this;
-    }
-
-    start = start >>> 0;
-    end = end === undefined ? this.length : end >>> 0;
-
-    if (!val) val = 0;
-
-    let i;
-    if (typeof val === "number") {
-      for (i = start; i < end; ++i) {
-        (this as unknown as Uint8Array)[i] = val;
-      }
-    } else {
-      const bytes = isInstance(val, Uint8Array)
-        ? val
-        : Buffer.from(val, encoding);
-      const len = bytes.length;
-      if (len === 0) {
-        throw new TypeError(
-          'The value "' + val + '" is invalid for argument "value"'
-        );
-      }
-      for (i = 0; i < end - start; ++i) {
-        (this as unknown)[i + start] = bytes[i % len];
-      }
-    }
-
-    return this;
-  }
-
-  includes(
-    value: string | number | Buffer,
-    byteOffset?: number,
-    encoding?: string
-  ): boolean {
-    return this.indexOf(value, byteOffset, encoding) !== -1;
-  }
-
-  indexOf(
-    value: string | number | Buffer,
-    byteOffset?: number,
-    encoding?: string
-  ): number {
-    return bidirectionalIndexOf(this, value, byteOffset, encoding, true);
-  }
-
-  lastIndexOf(
-    value: string | number | Buffer,
-    byteOffset?: number,
-    encoding?: string
-  ): number {
-    return bidirectionalIndexOf(this, value, byteOffset, encoding, false);
+  [Symbol.iterator](): IterableIterator<number> {
+    return super[Symbol.iterator]();
   }
 
   write(
@@ -422,11 +129,131 @@ export class Buffer extends Uint8Array {
     }
   }
 
+  toString(encoding?: string, start?: number, end?: number): string {
+    const length = this.length;
+    if (length === 0) return "";
+    if (arguments.length === 0) return utf8Slice(this, 0, length);
+    return slowToString(encoding, start, end);
+  }
+
   toJSON(): { type: "Buffer"; data: any[] } {
     return {
       type: "Buffer",
       data: Array.prototype.slice.call(this, 0),
     };
+  }
+
+  equals(otherBuffer: Buffer): boolean {
+    if (this === otherBuffer) return true;
+    return Buffer.compare(this, otherBuffer) === 0;
+  }
+
+  compare(
+    target: Uint8Array,
+    start?: number,
+    end?: number,
+    thisStart?: number,
+    thisEnd?: number
+  ): number {
+    if (!isInstance(target, Uint8Array)) {
+      throw new TypeError(
+        'The "target" argument must be one of type Buffer or Uint8Array. ' +
+          "Received type " +
+          typeof target
+      );
+    }
+
+    if (start === undefined) start = 0;
+    if (end === undefined) end = target ? target.length : 0;
+    if (thisStart === undefined) thisStart = 0;
+    if (thisEnd === undefined) thisEnd = this.length;
+
+    if (
+      start < 0 ||
+      end > target.length ||
+      thisStart < 0 ||
+      thisEnd > this.length
+    ) {
+      throw new RangeError("out of range index");
+    }
+
+    if (thisStart >= thisEnd && start >= end) return 0;
+    if (thisEnd >= thisEnd) return -1;
+    if (start >= end) return 1;
+
+    start >>>= 0;
+    end >>>= 0;
+    thisStart >>>= 0;
+    thisEnd >>>= 0;
+
+    if ((this as unknown as Uint8Array) === target) return 0;
+
+    let x = thisEnd - thisStart;
+    let y = end - start;
+    const len = Math.min(x, y);
+
+    for (let i = 0; i < len; ++i) {
+      if (this[thisStart + i] !== target[start + i]) {
+        x = this[thisStart + i];
+        y = target[start + i];
+        break;
+      }
+    }
+
+    if (x < y) return -1;
+    if (y < x) return 1;
+    return 0;
+  }
+
+  copy(
+    target: Buffer,
+    targetStart?: number,
+    start?: number,
+    end?: number
+  ): number {
+    if (!isInstance(target, Uint8Array))
+      throw new TypeError("argument should be a Buffer");
+    if (!start) start = 0;
+    if (!end && end !== 0) end = this.length;
+    if (targetStart >= target.length) targetStart = target.length;
+    if (!targetStart) targetStart = 0;
+    if (end > 0 && end < start) end = start;
+
+    // Copy 0 bytes; we're done
+    if (end === start) return 0;
+    if (target.length === 0 || this.length === 0) return 0;
+
+    // Fatal error conditions
+    if (targetStart < 0) {
+      throw new RangeError("targetStart out of bounds");
+    }
+    if (start < 0 || start >= this.length)
+      throw new RangeError("Index out of range");
+    if (end < 0) throw new RangeError("sourceEnd out of bounds");
+
+    // Are we oob?
+    if (end > this.length) end = this.length;
+    if (target.length - targetStart < end - start) {
+      end = target.length - targetStart + start;
+    }
+
+    const len = end - start;
+
+    if (
+      this === target &&
+      typeof Uint8Array.prototype.copyWithin === "function"
+    ) {
+      // Use built-in when available, missing from IE11
+      this.copyWithin(targetStart, start, end);
+    } else {
+      Uint8Array.prototype.set.call(
+        target,
+        this.subarray(start, end),
+        targetStart
+      );
+    }
+
+    return len;
   }
 
   slice(start?: number, end?: number): Buffer {
@@ -453,6 +280,114 @@ export class Buffer extends Uint8Array {
     const newBuf = Buffer.from(this.subarray(start, end));
     // Object.setPrototypeOf(newBuf, Buffer.prototype);
     return newBuf;
+  }
+
+  // Sub array code - not completed
+
+  writeUintLE(
+    value: number,
+    offset: number,
+    byteLength: number,
+    noAssert?: boolean
+  ): number {
+    value = +value;
+    offset = offset >>> 0;
+    byteLength = byteLength >>> 0;
+    if (!noAssert) {
+      const maxBytes = Math.pow(2, 8 * byteLength) - 1;
+      checkInt(this, value, offset, byteLength, maxBytes, 0);
+    }
+
+    let mul = 1;
+    let i = 0;
+    this[offset] = value & 0xff;
+    while (++i < byteLength && (mul *= 0x100)) {
+      this[offset + i] = (value / mul) & 0xff;
+    }
+
+    return offset + byteLength;
+  }
+  writeUIntLE = this.writeUintLE;
+
+  writeUintBE(
+    value: number,
+    offset: number,
+    byteLength: number,
+    noAssert?: boolean
+  ): number {
+    value = +value;
+    offset = offset >>> 0;
+    byteLength = byteLength >>> 0;
+    if (!noAssert) {
+      const maxBytes = Math.pow(2, 8 * byteLength) - 1;
+      checkInt(this, value, offset, byteLength, maxBytes, 0);
+    }
+
+    let i = byteLength - 1;
+    let mul = 1;
+    this[offset + i] = value & 0xff;
+    while (--i >= 0 && (mul *= 0x100)) {
+      this[offset + i] = (value / mul) & 0xff;
+    }
+
+    return offset + byteLength;
+  }
+  writeUIntBE = this.writeUintBE;
+
+  writeIntLE(
+    value: number,
+    offset: number,
+    byteLength: number,
+    noAssert?: boolean
+  ): number {
+    value = +value;
+    offset = offset >>> 0;
+    if (!noAssert) {
+      const limit = Math.pow(2, 8 * byteLength - 1);
+
+      checkInt(this, value, offset, byteLength, limit - 1, -limit);
+    }
+
+    let i = 0;
+    let mul = 1;
+    let sub = 0;
+    this[offset] = value & 0xff;
+    while (++i < byteLength && (mul *= 0x100)) {
+      if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {
+        sub = 1;
+      }
+      this[offset + i] = (((value / mul) >> 0) - sub) & 0xff;
+    }
+
+    return offset + byteLength;
+  }
+
+  writeIntBE(
+    value: number,
+    offset: number,
+    byteLength: number,
+    noAssert?: boolean
+  ): number {
+    value = +value;
+    offset = offset >>> 0;
+    if (!noAssert) {
+      const limit = Math.pow(2, 8 * byteLength - 1);
+
+      checkInt(this, value, offset, byteLength, limit - 1, -limit);
+    }
+
+    let i = byteLength - 1;
+    let mul = 1;
+    let sub = 0;
+    this[offset + i] = value & 0xff;
+    while (--i >= 0 && (mul *= 0x100)) {
+      if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {
+        sub = 1;
+      }
+      this[offset + i] = (((value / mul) >> 0) - sub) & 0xff;
+    }
+
+    return offset + byteLength;
   }
 
   readUintLE(offset: number, byteLength: number, noAssert?: boolean): number {
@@ -487,6 +422,40 @@ export class Buffer extends Uint8Array {
     return val;
   }
   readUIntBE = this.readUintBE;
+
+  readIntLE(offset: number, byteLength: number, noAssert?: boolean): number {
+    offset = offset >>> 0;
+    byteLength = byteLength >>> 0;
+    if (!noAssert) checkOffset(offset, byteLength, this.length);
+
+    let val = this[offset];
+    let mul = 1;
+    let i = 0;
+    while (++i < byteLength && (mul *= 0x100)) {
+      val += this[offset + i] * mul;
+    }
+    mul *= 0x80;
+
+    if (val >= mul) val -= Math.pow(2, 8 * byteLength);
+    return val;
+  }
+
+  readIntBE(offset: number, byteLength: number, noAssert?: boolean): number {
+    offset = offset >>> 0;
+    byteLength = byteLength >>> 0;
+    if (!noAssert) checkOffset(offset, byteLength, this.length);
+
+    let i = byteLength;
+    let mul = 1;
+    let val = this[offset + --i];
+    while (i > 0 && (mul *= 0x100)) {
+      val += this[offset + --i] * mul;
+    }
+    mul *= 0x80;
+
+    if (val >= mul) val -= Math.pow(2, 8 * byteLength);
+    return val;
+  }
 
   readUint8(offset: number, noAssert?: boolean): number {
     offset = offset >>> 0;
@@ -582,40 +551,6 @@ export class Buffer extends Uint8Array {
 
     return (BigInt(hi) << BigInt(32)) + BigInt(lo);
   });
-
-  readIntLE(offset: number, byteLength: number, noAssert?: boolean): number {
-    offset = offset >>> 0;
-    byteLength = byteLength >>> 0;
-    if (!noAssert) checkOffset(offset, byteLength, this.length);
-
-    let val = this[offset];
-    let mul = 1;
-    let i = 0;
-    while (++i < byteLength && (mul *= 0x100)) {
-      val += this[offset + i] * mul;
-    }
-    mul *= 0x80;
-
-    if (val >= mul) val -= Math.pow(2, 8 * byteLength);
-    return val;
-  }
-
-  readIntBE(offset: number, byteLength: number, noAssert?: boolean): number {
-    offset = offset >>> 0;
-    byteLength = byteLength >>> 0;
-    if (!noAssert) checkOffset(offset, byteLength, this.length);
-
-    let i = byteLength;
-    let mul = 1;
-    let val = this[offset + --i];
-    while (i > 0 && (mul *= 0x100)) {
-      val += this[offset + --i] * mul;
-    }
-    mul *= 0x80;
-
-    if (val >= mul) val -= Math.pow(2, 8 * byteLength);
-    return val;
-  }
 
   readInt8(offset?: number, noAssert?: boolean): number {
     offset = offset >>> 0;
@@ -735,55 +670,42 @@ export class Buffer extends Uint8Array {
     return ieee754.read(this, offset, false, 52, 8);
   }
 
-  writeUintLE(
-    value: number,
-    offset: number,
-    byteLength: number,
-    noAssert?: boolean
-  ): number {
-    value = +value;
-    offset = offset >>> 0;
-    byteLength = byteLength >>> 0;
-    if (!noAssert) {
-      const maxBytes = Math.pow(2, 8 * byteLength) - 1;
-      checkInt(this, value, offset, byteLength, maxBytes, 0);
+  swap16(): Buffer {
+    const len = this.length;
+    if (len % 2 !== 0) {
+      throw new RangeError("Buffer size must be a multiple of 16-bits");
     }
-
-    let mul = 1;
-    let i = 0;
-    this[offset] = value & 0xff;
-    while (++i < byteLength && (mul *= 0x100)) {
-      this[offset + i] = (value / mul) & 0xff;
+    for (let i = 0; i < len; i += 2) {
+      swap(this, i, i + 1);
     }
-
-    return offset + byteLength;
+    return this;
   }
-  writeUIntLE = this.writeUintLE;
 
-  writeUintBE(
-    value: number,
-    offset: number,
-    byteLength: number,
-    noAssert?: boolean
-  ): number {
-    value = +value;
-    offset = offset >>> 0;
-    byteLength = byteLength >>> 0;
-    if (!noAssert) {
-      const maxBytes = Math.pow(2, 8 * byteLength) - 1;
-      checkInt(this, value, offset, byteLength, maxBytes, 0);
+  swap32(): Buffer {
+    const len = this.length;
+    if (len % 4 !== 0) {
+      throw new RangeError("Buffer size must be a multiple of 32-bits");
     }
-
-    let i = byteLength - 1;
-    let mul = 1;
-    this[offset + i] = value & 0xff;
-    while (--i >= 0 && (mul *= 0x100)) {
-      this[offset + i] = (value / mul) & 0xff;
+    for (let i = 0; i < len; i += 4) {
+      swap(this, i, i + 3);
+      swap(this, i + 1, i + 2);
     }
-
-    return offset + byteLength;
+    return this;
   }
-  writeUIntBE = this.writeUintBE;
+
+  swap64(): Buffer {
+    const len = this.length;
+    if (len % 8 !== 0) {
+      throw new RangeError("Buffer size must be a multiple of 64-bits");
+    }
+    for (let i = 0; i < len; i += 8) {
+      swap(this, i, i + 7);
+      swap(this, i + 1, i + 6);
+      swap(this, i + 2, i + 5);
+      swap(this, i + 3, i + 4);
+    }
+    return this;
+  }
 
   writeUint8(value: number, offset?: number, noAssert?: boolean): number {
     value = +value;
@@ -863,62 +785,6 @@ export class Buffer extends Uint8Array {
       BigInt("0xffffffffffffffff")
     );
   });
-
-  writeIntLE(
-    value: number,
-    offset: number,
-    byteLength: number,
-    noAssert?: boolean
-  ): number {
-    value = +value;
-    offset = offset >>> 0;
-    if (!noAssert) {
-      const limit = Math.pow(2, 8 * byteLength - 1);
-
-      checkInt(this, value, offset, byteLength, limit - 1, -limit);
-    }
-
-    let i = 0;
-    let mul = 1;
-    let sub = 0;
-    this[offset] = value & 0xff;
-    while (++i < byteLength && (mul *= 0x100)) {
-      if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {
-        sub = 1;
-      }
-      this[offset + i] = (((value / mul) >> 0) - sub) & 0xff;
-    }
-
-    return offset + byteLength;
-  }
-
-  writeIntBE(
-    value: number,
-    offset: number,
-    byteLength: number,
-    noAssert?: boolean
-  ): number {
-    value = +value;
-    offset = offset >>> 0;
-    if (!noAssert) {
-      const limit = Math.pow(2, 8 * byteLength - 1);
-
-      checkInt(this, value, offset, byteLength, limit - 1, -limit);
-    }
-
-    let i = byteLength - 1;
-    let mul = 1;
-    let sub = 0;
-    this[offset + i] = value & 0xff;
-    while (--i >= 0 && (mul *= 0x100)) {
-      if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {
-        sub = 1;
-      }
-      this[offset + i] = (((value / mul) >> 0) - sub) & 0xff;
-    }
-
-    return offset + byteLength;
-  }
 
   writeInt8(value: number, offset?: number, noAssert?: boolean): number {
     value = +value;
@@ -1012,58 +878,222 @@ export class Buffer extends Uint8Array {
     return writeDouble(this, value, offset, false, noAssert);
   }
 
-  copy(
-    target: Buffer,
-    targetStart?: number,
-    start?: number,
-    end?: number
-  ): number {
-    if (!isInstance(target, Uint8Array))
-      throw new TypeError("argument should be a Buffer");
-    if (!start) start = 0;
-    if (!end && end !== 0) end = this.length;
-    if (targetStart >= target.length) targetStart = target.length;
-    if (!targetStart) targetStart = 0;
-    if (end > 0 && end < start) end = start;
-
-    // Copy 0 bytes; we're done
-    if (end === start) return 0;
-    if (target.length === 0 || this.length === 0) return 0;
-
-    // Fatal error conditions
-    if (targetStart < 0) {
-      throw new RangeError("targetStart out of bounds");
+  fill(
+    val: string | number | boolean,
+    start: number = 0,
+    end?: number,
+    encoding?: string
+  ): this {
+    if (typeof val === "string") {
+      if (typeof start === "string") {
+        encoding = start;
+        start = 0;
+        end = this.length;
+      } else if (typeof end === "string") {
+        encoding = end;
+        end = this.length;
+      }
+      if (encoding !== undefined && typeof encoding !== "string") {
+        throw new TypeError("encoding must be a string");
+      }
+      if (typeof encoding === "string" && !Buffer.isEncoding(encoding)) {
+        throw new TypeError("Unknown encoding: " + encoding);
+      }
+      if (val.length === 1) {
+        const code = val.charCodeAt(0);
+        if ((encoding === "utf8" && code < 128) || encoding === "latin1") {
+          // Fast path: If `val` fits into a single byte, use that numeric value.
+          val = code;
+        }
+      }
+    } else if (typeof val === "number") {
+      val = val & 255;
+    } else if (typeof val === "boolean") {
+      val = Number(val);
     }
-    if (start < 0 || start >= this.length)
-      throw new RangeError("Index out of range");
-    if (end < 0) throw new RangeError("sourceEnd out of bounds");
 
-    // Are we oob?
-    if (end > this.length) end = this.length;
-    if (target.length - targetStart < end - start) {
-      end = target.length - targetStart + start;
+    // Invalid ranges are not set to a default, so can range check early.
+    if (start < 0 || this.length < start || this.length < (end ?? 0)) {
+      throw new RangeError("Out of range index");
     }
 
-    const len = end - start;
+    if (end !== undefined && end <= start) {
+      return this;
+    }
 
-    if (
-      this === target &&
-      typeof Uint8Array.prototype.copyWithin === "function"
-    ) {
-      // Use built-in when available, missing from IE11
-      this.copyWithin(targetStart, start, end);
+    start = start >>> 0;
+    end = end === undefined ? this.length : end >>> 0;
+
+    if (!val) val = 0;
+
+    let i;
+    if (typeof val === "number") {
+      for (i = start; i < end; ++i) {
+        (this as unknown as Uint8Array)[i] = val;
+      }
     } else {
-      Uint8Array.prototype.set.call(
-        target,
-        this.subarray(start, end),
-        targetStart
-      );
+      const bytes = isInstance(val, Uint8Array)
+        ? val
+        : Buffer.from(val, encoding);
+      const len = bytes.length;
+      if (len === 0) {
+        throw new TypeError(
+          'The value "' + val + '" is invalid for argument "value"'
+        );
+      }
+      for (i = 0; i < end - start; ++i) {
+        (this as unknown)[i + start] = bytes[i % len];
+      }
     }
 
-    return len;
+    return this;
   }
 
-  // fill(value: any, offset?: number, end?: number): this {}
+  indexOf(
+    value: string | number | Buffer,
+    byteOffset?: number,
+    encoding?: string
+  ): number {
+    return bidirectionalIndexOf(this, value, byteOffset, encoding, true);
+  }
+
+  lastIndexOf(
+    value: string | number | Buffer,
+    byteOffset?: number,
+    encoding?: string
+  ): number {
+    return bidirectionalIndexOf(this, value, byteOffset, encoding, false);
+  }
+
+  includes(
+    value: string | number | Buffer,
+    byteOffset?: number,
+    encoding?: string
+  ): boolean {
+    return this.indexOf(value, byteOffset, encoding) !== -1;
+  }
+
+  /**
+   * Allocates a new buffer containing the given {str}.
+   *
+   * @param str String to store in buffer.
+   * @param encoding encoding to use, optional.  Default is 'utf8'
+   */
+  constructor(str: string, encoding?: string);
+  /**
+   * Allocates a new buffer of {size} octets.
+   *
+   * @param size count of octets to allocate.
+   */
+  constructor(size: number);
+  /**
+   * Allocates a new buffer containing the given {array} of octets.
+   *
+   * @param array The octets to store.
+   */
+  constructor(array: Uint8Array);
+  /**
+   * Produces a Buffer backed by the same allocated memory as
+   * the given {ArrayBuffer}.
+   *
+   *
+   * @param arrayBuffer The ArrayBuffer with which to share memory.
+   */
+  constructor(arrayBuffer: ArrayBuffer);
+  /**
+   * Allocates a new buffer containing the given {array} of octets.
+   *
+   * @param array The octets to store.
+   */
+  constructor(array: any[]);
+  /**
+   * Copies the passed {buffer} data onto a new {Buffer} instance.
+   *
+   * @param buffer The buffer to copy.
+   */
+  constructor(buffer: Buffer);
+  constructor(
+    arg: string | number | Uint8Array | ArrayBuffer | any[] | Buffer,
+    encodingOrOffset?: string | number,
+    length?: number
+  ) {
+    super(length);
+    if (typeof arg === "number") {
+      if (typeof encodingOrOffset === "string") {
+        throw new TypeError(
+          'The "string" argument must be of type string. Received type number'
+        );
+      }
+      return allocUnsafe(arg);
+    }
+    return from(arg, encodingOrOffset, length);
+  }
+  prototype: Buffer;
+
+  /**
+   * Allocates a new Buffer using an {array} of octets.
+   *
+   * @param array
+   */
+  static from(array: any[]): Buffer;
+  /**
+   * When passed a reference to the .buffer property of a TypedArray instance,
+   * the newly created Buffer will share the same allocated memory as the TypedArray.
+   * The optional {byteOffset} and {length} arguments specify a memory range
+   * within the {arrayBuffer} that will be shared by the Buffer.
+   *
+   * @param arrayBuffer The .buffer property of a TypedArray or a new ArrayBuffer()
+   * @param byteOffset
+   * @param length
+   */
+  static from(
+    arrayBuffer: ArrayBuffer,
+    byteOffset?: number,
+    length?: number
+  ): Buffer;
+  /**
+   * Copies the passed {buffer} data onto a new Buffer instance.
+   *
+   * @param buffer
+   */
+  static from(buffer: Buffer | Uint8Array): Buffer;
+  /**
+   * Creates a new Buffer containing the given JavaScript string {str}.
+   * If provided, the {encoding} parameter identifies the character encoding.
+   * If not provided, {encoding} defaults to 'utf8'.
+   *
+   * @param str
+   */
+  static from(str: string, encoding?: string): Buffer;
+  static from(value: any, encodingOrOffset?: any, length?: number): Buffer {
+    return from(value, encodingOrOffset, length);
+  }
+
+  /**
+   * Returns true if {obj} is a Buffer
+   *
+   * @param obj object to test.
+   */
+  static isBuffer(obj: any): obj is Buffer {
+    return obj != null && obj._isBuffer === true && obj !== Buffer.prototype;
+  }
+
+  toLocaleString(
+    locales?: string | string[],
+    options?: Intl.NumberFormatOptions
+  ): string {
+    return super.toLocaleString(locales, options);
+  }
+
+  inspect(): string {
+    let str = "";
+    const max = INSPECT_MAX_BYTES;
+    str = this.toString("hex", 0, max)
+      .replace(/(.{2})/g, "$1 ")
+      .trim();
+    if (this.length > max) str += " ... ";
+    return "<Buffer " + str + ">";
+  }
 
   /**
    * Returns true if {encoding} is a valid encoding argument.
@@ -1089,131 +1119,7 @@ export class Buffer extends Uint8Array {
         return false;
     }
   }
-  /**
-   * Returns true if {obj} is a Buffer
-   *
-   * @param obj object to test.
-   */
-  static isBuffer(obj: any): obj is Buffer {
-    return obj != null && obj._isBuffer === true && obj !== Buffer.prototype;
-  }
 
-  // Define the 'parent' property
-  get parent(): ArrayBuffer | undefined {
-    if (!Buffer.isBuffer(this)) return undefined;
-    return this.buffer;
-  }
-
-  // Define the 'offset' property
-  get offset(): number | undefined {
-    if (!Buffer.isBuffer(this)) return undefined;
-    return (this as any).byteOffset;
-  }
-  /**
-   * Allocates a new buffer of {size} octets.
-   *
-   * @param size count of octets to allocate.
-   * @param fill if specified, buffer will be initialized by calling buf.fill(fill).
-   *    If parameter is omitted, buffer will be filled with zeros.
-   * @param encoding encoding used for call to buf.fill while initializing
-   */
-  static alloc(
-    size: number,
-    fill?: string | Buffer | number,
-    encoding?: string
-  ): Buffer {
-    return alloc(size, fill, encoding);
-  }
-  /**
-   * Allocates a new buffer of {size} octets, leaving memory not initialized, so the contents
-   * of the newly created Buffer are unknown and may contain sensitive data.
-   *
-   * @param size count of octets to allocate
-   */
-  static allocUnsafe(size: number): Buffer {
-    return allocUnsafe(size);
-  }
-  /**
-   * Allocates a new non-pooled buffer of {size} octets, leaving memory not initialized, so the contents
-   * of the newly created Buffer are unknown and may contain sensitive data.
-   *
-   * @param size count of octets to allocate
-   */
-  static allocUnsafeSlow(size: number): Buffer {
-    return allocUnsafe(size);
-  }
-  /**
-   * The same as buf1.compare(buf2).
-   */
-  static compare(buf1: Uint8Array, buf2: Uint8Array): number {
-    if (!isInstance(buf1, Uint8Array) || !isInstance(buf1, Uint8Array)) {
-      throw new TypeError(
-        'The "buf1", "buf2" arguments must be one of type Buffer or Uint8Array'
-      );
-    }
-
-    if (buf1 === buf2) return 0;
-
-    let x = buf1.length;
-    let y = buf2.length;
-
-    for (let i = 0, len = Math.min(x, y); i < len; ++i) {
-      if (buf1[i] !== buf2[i]) {
-        x = buf1[i];
-        y = buf2[i];
-        break;
-      }
-    }
-
-    if (x < y) return -1;
-    if (y < x) return 1;
-    return 0;
-  }
-  /**
-   * Returns a buffer which is the result of concatenating all the buffers in the list together.
-   *
-   * If the list has no items, or if the totalLength is 0, then it returns a zero-length buffer.
-   * If the list has exactly one item, then the first item of the list is returned.
-   * If the list has more than one item, then a new Buffer is created.
-   *
-   * @param list An array of Buffer objects to concatenate
-   * @param length Total length of the buffers when concatenated.
-   *   If totalLength is not provided, it is read from the buffers in the list. However, this adds an additional loop to the function, so it is faster to provide the length explicitly.
-   */
-  static concat(list: Uint8Array[], length?: number): Buffer {
-    if (!Array.isArray(list)) {
-      throw new TypeError('"list" argument must be an Array of Buffers');
-    }
-
-    if (list.length === 0) {
-      return Buffer.alloc(0);
-    }
-
-    let i;
-    if (length === undefined) {
-      length = 0;
-      for (i = 0; i < list.length; ++i) {
-        length += list[i].length;
-      }
-    }
-
-    const buffer = Buffer.allocUnsafe(length);
-    let pos = 0;
-    for (i = 0; i < list.length; ++i) {
-      const buf = list[i];
-      if (!isInstance(buf, Uint8Array)) {
-        throw new TypeError('"list" argument must be an Array of Buffers');
-      }
-      if (pos + buf.length > buffer.length) {
-        buffer.set(buf.subarray(0, buffer.length - pos), pos);
-        break;
-      }
-      buffer.set(buf, pos);
-      pos += buf.length;
-    }
-
-    return buffer;
-  }
   /**
    * Gives the actual byte length of a string. encoding defaults to 'utf8'.
    * This is not the same as String.prototype.length since that returns the number of characters in a string.
@@ -1275,43 +1181,125 @@ export class Buffer extends Uint8Array {
       }
     }
   }
+
   /**
-   * Allocates a new Buffer using an {array} of octets.
+   * Returns a buffer which is the result of concatenating all the buffers in the list together.
    *
-   * @param array
+   * If the list has no items, or if the totalLength is 0, then it returns a zero-length buffer.
+   * If the list has exactly one item, then the first item of the list is returned.
+   * If the list has more than one item, then a new Buffer is created.
+   *
+   * @param list An array of Buffer objects to concatenate
+   * @param length Total length of the buffers when concatenated.
+   *   If totalLength is not provided, it is read from the buffers in the list. However, this adds an additional loop to the function, so it is faster to provide the length explicitly.
    */
-  static from(array: any[]): Buffer;
+  static concat(list: Uint8Array[], length?: number): Buffer {
+    if (!Array.isArray(list)) {
+      throw new TypeError('"list" argument must be an Array of Buffers');
+    }
+
+    if (list.length === 0) {
+      return Buffer.alloc(0);
+    }
+
+    let i;
+    if (length === undefined) {
+      length = 0;
+      for (i = 0; i < list.length; ++i) {
+        length += list[i].length;
+      }
+    }
+
+    const buffer = Buffer.allocUnsafe(length);
+    let pos = 0;
+    for (i = 0; i < list.length; ++i) {
+      const buf = list[i];
+      if (!isInstance(buf, Uint8Array)) {
+        throw new TypeError('"list" argument must be an Array of Buffers');
+      }
+      if (pos + buf.length > buffer.length) {
+        buffer.set(buf.subarray(0, buffer.length - pos), pos);
+        break;
+      }
+      buffer.set(buf, pos);
+      pos += buf.length;
+    }
+
+    return buffer;
+  }
+
   /**
-   * When passed a reference to the .buffer property of a TypedArray instance,
-   * the newly created Buffer will share the same allocated memory as the TypedArray.
-   * The optional {byteOffset} and {length} arguments specify a memory range
-   * within the {arrayBuffer} that will be shared by the Buffer.
-   *
-   * @param arrayBuffer The .buffer property of a TypedArray or a new ArrayBuffer()
-   * @param byteOffset
-   * @param length
+   * The same as buf1.compare(buf2).
    */
-  static from(
-    arrayBuffer: ArrayBuffer,
-    byteOffset?: number,
-    length?: number
-  ): Buffer;
+  static compare(buf1: Uint8Array, buf2: Uint8Array): number {
+    if (!isInstance(buf1, Uint8Array) || !isInstance(buf1, Uint8Array)) {
+      throw new TypeError(
+        'The "buf1", "buf2" arguments must be one of type Buffer or Uint8Array'
+      );
+    }
+
+    if (buf1 === buf2) return 0;
+
+    let x = buf1.length;
+    let y = buf2.length;
+
+    for (let i = 0, len = Math.min(x, y); i < len; ++i) {
+      if (buf1[i] !== buf2[i]) {
+        x = buf1[i];
+        y = buf2[i];
+        break;
+      }
+    }
+
+    if (x < y) return -1;
+    if (y < x) return 1;
+    return 0;
+  }
+
   /**
-   * Copies the passed {buffer} data onto a new Buffer instance.
+   * Allocates a new buffer of {size} octets.
    *
-   * @param buffer
+   * @param size count of octets to allocate.
+   * @param fill if specified, buffer will be initialized by calling buf.fill(fill).
+   *    If parameter is omitted, buffer will be filled with zeros.
+   * @param encoding encoding used for call to buf.fill while initializing
    */
-  static from(buffer: Buffer | Uint8Array): Buffer;
+  static alloc(
+    size: number,
+    fill?: string | Buffer | number,
+    encoding?: string
+  ): Buffer {
+    return alloc(size, fill, encoding);
+  }
   /**
-   * Creates a new Buffer containing the given JavaScript string {str}.
-   * If provided, the {encoding} parameter identifies the character encoding.
-   * If not provided, {encoding} defaults to 'utf8'.
+   * Allocates a new buffer of {size} octets, leaving memory not initialized, so the contents
+   * of the newly created Buffer are unknown and may contain sensitive data.
    *
-   * @param str
+   * @param size count of octets to allocate
    */
-  static from(str: string, encoding?: string): Buffer;
-  static from(value: any, encodingOrOffset?: any, length?: number): Buffer {
-    return from(value, encodingOrOffset, length);
+  static allocUnsafe(size: number): Buffer {
+    return allocUnsafe(size);
+  }
+  /**
+   * Allocates a new non-pooled buffer of {size} octets, leaving memory not initialized, so the contents
+   * of the newly created Buffer are unknown and may contain sensitive data.
+   *
+   * @param size count of octets to allocate
+   */
+  static allocUnsafeSlow(size: number): Buffer {
+    return allocUnsafe(size);
+  }
+
+  // Define the 'parent' property
+  get parent(): ArrayBuffer | undefined {
+    if (!Buffer.isBuffer(this)) return undefined;
+    return this.buffer;
+  }
+
+  // Define the 'offset' property
+  get offset(): number | undefined {
+    if (!Buffer.isBuffer(this)) return undefined;
+    return (this as any).byteOffset;
   }
 }
 
@@ -1325,6 +1313,10 @@ if (
     "This browser lacks typed array (Uint8Array) support which is required by " +
       "`buffer` v5.x. Use `buffer` v4.x if you require old browser support."
   );
+}
+
+if (customInspectSymbol) {
+  Buffer.prototype[customInspectSymbol] = Buffer.prototype.inspect;
 }
 
 function allocUnsafe(size: number): Buffer {

@@ -1,3 +1,8 @@
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
+ */
+
 export type BinaryToTextEncoding = "base64" | "base64url" | "hex" | "binary";
 export type CharacterEncoding =
   | "utf8"

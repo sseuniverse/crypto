@@ -5,41 +5,6 @@
   "files": [
     "dist"
   ],
-  "exports": {
-    "./base64": {
-      "import": "./dist/base64.js",
-      "types": "./dist/base64.d.ts"
-    },
-    "./buffer": {
-      "import": "./dist/buffer.js",
-      "types": "./dist/buffer.d.ts"
-    },
-    "./hash": {
-      "import": "./dist/hash.js",
-      "types": "./dist/hash.d.ts"
-    },
-    "./hmac": {
-      "import": "./dist/hmac.js",
-      "types": "./dist/hmac.d.ts"
-    },
-    "./ieee754": {
-      "import": "./dist/ieee754.js",
-      "types": "./dist/ieee754.d.ts"
-    },
-    "./punycode": {
-      "import": "./dist/punycode.js",
-      "types": "./dist/punycode.d.ts"
-    },
-    "./qs": {
-      "import": "./dist/qs/index.js",
-      "types": "./dist/qs/index.d.ts"
-    },
-    "./bcrypt": {
-      "import": "./dist/bcrypt/index.js",
-      "types": "./dist/bcrypt/index.d.ts"
-    },
-    "./*": "./dist/*"
-  },
   "publishConfig": {
     "access": "public"
   },
@@ -52,31 +17,11 @@
   "license": "MIT",
   "description": "I have tried to create the best `Crypto` for the users",
   "devDependencies": {
-    "@types/jws": "^3.2.10",
-    "@types/lodash.includes": "^4.3.9",
-    "@types/lodash.isboolean": "^3.0.9",
-    "@types/lodash.isinteger": "^4.0.9",
-    "@types/lodash.isnumber": "^3.0.9",
-    "@types/lodash.isplainobject": "^4.0.9",
-    "@types/lodash.isstring": "^4.0.9",
-    "@types/lodash.once": "^4.1.9",
     "@types/node": "^22.12.0",
-    "@types/readable-stream": "^4.0.18",
-    "@types/semver": "^7.5.8",
     "conventional-changelog": "^6.0.0",
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "jws": "^4.0.0",
-    "lodash.includes": "^4.3.0",
-    "lodash.isboolean": "^3.0.3",
-    "lodash.isinteger": "^4.0.4",
-    "lodash.isnumber": "^3.0.3",
-    "lodash.isplainobject": "^4.0.6",
-    "lodash.isstring": "^4.0.1",
-    "lodash.once": "^4.1.1",
-    "readable-stream": "^4.7.0",
-    "semver": "^7.7.0",
     "side-channel": "^1.1.0"
   },
   "repository": {

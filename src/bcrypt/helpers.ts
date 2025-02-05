@@ -1,6 +1,6 @@
-/**
- * utfx-embeddable (c) 2025 SSE World
- * Released under the MIT, Version 2.0
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
  */
 
 export const MAX_CODEPOINT = 0x10ffff;

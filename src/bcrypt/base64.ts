@@ -1,3 +1,8 @@
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
+ */
+
 import { BASE64_CODE, BASE64_INDEX } from "./constants";
 
 /**

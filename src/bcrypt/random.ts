@@ -1,6 +1,7 @@
-// declare module "random" {
-//   export const random: (length: number) => number[] | Buffer;
-// }
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
+ */
 
 /**
  * @private

@@ -1,3 +1,8 @@
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
+ */
+
 import { hash as hashAsync, hashSync } from "./hash";
 import { nextTick } from "./helpers";
 

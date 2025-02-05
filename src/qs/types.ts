@@ -1,3 +1,8 @@
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
+ */
+
 export type defaultEncoder = (
   str: any,
   defaultEncoder?: any,

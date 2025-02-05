@@ -1,6 +1,12 @@
+/*
+ * @author   SSE World <http://sseworld.github.io/>
+ * @license  MIT
+ */
+
 import { BinaryLike } from "crypto";
 import { BinaryToTextEncoding } from "./hmac";
-import { Buffer } from "./buffer"
+import { Buffer } from "./buffer";
+import { btoa } from "buffer";
 
 // Define options for the Hash class
 interface HashOptions {

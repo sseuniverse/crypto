@@ -10,7 +10,7 @@
     "target": "ES2018",
     "esModuleInterop": true,
     "jsx": "react-jsx",
-    "types": ["node", "semver"]
+    "types": ["node"]
   },
   "include": ["./src"],
   "exclude": ["./src/jwt", "./src/cipher"]
