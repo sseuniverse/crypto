@@ -25,6 +25,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Delete old changelog file
+        run: |
+          if [ -f CHANGELOG.md ]; then
+            rm CHANGELOG.md
+            echo "Old changelog file deleted."
+          else
+            echo "No old changelog file found."
+          fi
+
       - name: Generate Changelog
         run: npm run changelog
 
