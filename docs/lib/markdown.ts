@@ -46,6 +46,7 @@ async function parseMdx<Frontmatter>(rawMdx: string) {
         remarkPlugins: [remarkGfm],
       },
     },
+    // @ts-ignore
     components,
   })
 }

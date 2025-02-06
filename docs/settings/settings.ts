@@ -1,4 +1,4 @@
-export const url = "https://rubix-documents.vercel.app"
+export const url = "https://sse-crypto.vercel.app"
 export const siteicon = "/icon.png"
 
 export const gtm = "GTM-XXXXXXX"
@@ -10,16 +10,16 @@ export const description =
 export const keywords = [
   "Next.js",
   "documentation",
-  "Rubix Studios",
+  "SSE Crypto",
   "open source",
   "SEO",
 ]
 export const urlimage = "/images/og-image.png"
-export const imagealt = "Rubix Studios Documentation"
-export const twitterhandle = "@RubixStudios"
+export const imagealt = "SSE Crypto Documentation"
+export const twitterhandle = "@sseworld"
 
-export const companyname = "Rubix Studios"
-export const companylink = "https://www.rubixstudios.com.au"
+export const companyname = "SSE Crypto"
+export const companylink = "https://github.com/sseuniverse"
 
 export const branding = true
 export const rightsidebar = true

@@ -1,4 +1,5 @@
 import { PageRoutes } from "@/lib/pageroutes"
+import { companylink } from "./settings"
 
 export const Navigations = [
   {
@@ -7,11 +8,11 @@ export const Navigations = [
   },
   {
     title: "Home",
-    href: "https://www.rubixstudios.com.au/",
+    href: companylink,
     external: true,
   },
 ]
 
 export const GitHubLink = {
-  href: "https://github.com/rubixvi/rubix-documents",
+  href: "https://github.com/sseuniverse/crypto",
 }

@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { Company } from "@/lib/meta"
+import { companylink } from "@/settings/settings"
 
 export function Footer() {
   return (
@@ -18,7 +19,7 @@ export function Footer() {
           <div className="text-center hidden md:block">
             <Link
               className="font-semibold"
-              href="https://www.rubixstudios.com.au"
+              href={companylink}
               target="_blank"
               rel="noopener noreferrer"
             >
