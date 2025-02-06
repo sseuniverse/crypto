@@ -354,7 +354,6 @@ const toASCII = (input: string): string => {
 
 /** Define the public API */
 const punycode = {
-  version: "2.3.1",
   ucs2: {
     decode: ucs2decode,
     encode: ucs2encode,

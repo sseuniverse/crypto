@@ -1,5 +1,5 @@
 "use strict";
-import Buffer from "../buffer";
+import Buffer from "./buffer";
 
 export type ByteArray = ArrayLike<number> & number[];
 
