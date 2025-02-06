@@ -1,0 +1,53 @@
+---
+title: Base64 Encoder/Decoder
+description: A utility for encoding and decoding data in Base64 format.
+---
+
+This module provides functions to convert binary data to Base64-encoded strings and vice versa. It supports standard Base64 encoding as well as URL-safe Base64 encoding.
+
+## Functions
+
+### byteLength(b64: string): number
+  
+Calculates the byte length of a Base64-encoded string.
+
+#### Example Usage
+
+```javascript showLineNumbers
+var b64 = "SGVsbG8sIFdvcmxkIQ==";
+var length = byteLength(b64);
+  
+console.log(length); // 12
+```
+
+### toByteArray(b64: string): Uint8Array
+
+Converts a Base64-encoded string to a `Uint8Array`.
+
+#### Example Usage
+
+```javascript showLineNumbers
+var b64 = "SGVsbG8sIFdvcmxkIQ==";
+var byteArray = toByteArray(b64);
+
+console.log(byteArray); // Uint8Array(12) [ 72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33 ]
+```
+
+### fromByteArray(uint8: Uint8Array): string
+
+Converts a `Uint8Array` to a Base64-encoded string.
+
+#### Example Usage
+
+```javascript showLineNumbers
+var byteArray = new Uint8Array([72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33]);
+var b64 = fromByteArray(byteArray);
+
+console.log(b64); // "SGVsbG8sIFdvcmxkIQ=="
+```
+
+## Notes
+
+- The module supports URL-safe Base64 encoding by replacing `+` with `-` and `/` with `_`.
+- The input Base64 string must have a length that is a multiple of 4.
+- The output of the encoding functions is a string that can be safely used in URLs.

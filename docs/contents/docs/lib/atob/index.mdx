@@ -1,0 +1,15 @@
+---
+title: atob
+---
+
+Uses Buffer to emulate the exact functionality of the browser's atob.
+
+Note: Unicode may be handled incorrectly (like the browser).
+
+It turns base64-encoded ascii data back to binary.
+
+```js showLineNumbers
+var b64 = "SGVsbG8sIFdvcmxkIQ==";
+var bin = atob(b64);
+console.log(bin); // "Hello, World!"
+```

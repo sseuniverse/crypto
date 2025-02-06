@@ -1,0 +1,16 @@
+---
+title: btoa
+---
+
+A port of the browser's `btoa` function.
+
+Uses `Buffer` to emulate the exact functionality of the browser's btoa (except that it supports some unicode that the browser may not).
+
+It turns binary data to base64-encoded ascii.
+
+```jsx showLineNumbers
+var bin = "Hello, 世界";
+var b64 = btoa(bin);
+ 
+console.log(b64); // "SGVsbG8sIBZM"
+```

@@ -1,0 +1,90 @@
+---
+title: Blob
+description: A representation of immutable, raw data that can be safely shared across multiple worker threads.
+---
+
+The `Blob` class encapsulates binary data and provides methods to manipulate and access that data. It can be constructed from various data sources, including strings, `ArrayBuffer`, `TypedArray`, and other `Blob` instances.
+
+## Interface: BlobOptions
+
+### endings?: "transparent" | "native"
+  
+Specifies how line endings in string sources are handled. If set to `'native'`, line endings will be converted to the platform's native line-ending format.
+
+### type?: string
+  
+The MIME media type of the data. No validation of the type format is performed.
+
+## Class: Blob
+
+- **`readonly size: number`**
+  
+The total size of the `Blob` in bytes.
+
+- **`readonly type: BlobOptions["type"]`**
+  
+The content-type of the `Blob`.
+
+- **`constructor(sources: Array<ArrayBuffer | BinaryLike | Blob>, options?: BlobOptions)`**
+  
+Creates a new `Blob` object containing a concatenation of the given sources. The sources can be `ArrayBuffer`, `TypedArray`, `DataView`, `Buffer`, or strings.
+
+## Methods
+
+- **`async arrayBuffer(): Promise<ArrayBuffer>`**
+  
+Returns a promise that resolves with an `ArrayBuffer` containing a copy of the `Blob` data.
+
+```javascript showLineNumbers
+const blob = new Blob(['Hello, World!']);
+blob.arrayBuffer().then(buffer => {
+  console.log(buffer); // Outputs: ArrayBuffer
+});
+```
+
+- **`async bytes(): Promise<Uint8Array>`**
+
+Returns a promise that resolves with the bytes of the `Blob` as a `Uint8Array`.
+
+```javascript showLineNumbers
+const blob = new Blob(['hello']);
+blob.bytes().then(bytes => {
+  console.log(bytes); // Outputs: Uint8Array(5) [ 104, 101, 108, 108, 111 ]
+});
+```
+
+- **`slice(start?: number, end?: number, type?: BlobOptions["type"]): Blob`**
+
+Creates and returns a new `Blob` containing a subset of this `Blob` object's data. The original `Blob` is not altered.
+
+```javascript showLineNumbers
+const blob = new Blob(['Hello, World!']);
+const slicedBlob = blob.slice(0, 5);
+```
+
+- **`async text(): Promise<string>`**
+
+Returns a promise that resolves with the contents of the `Blob` decoded as a UTF-8 string.
+
+```javascript showLineNumbers
+const blob = new Blob(['Hello, World!']);
+blob.text().then(text => {
+  console.log(text); // Outputs: "Hello, World!"
+});
+```
+
+- **`stream(): ReadableStream<Uint8Array>`**
+
+Returns a new `ReadableStream` that allows the content of the `Blob` to be read.
+
+```javascript showLineNumbers
+const blob = new Blob(['Hello, World!']);
+const stream = blob.stream();
+```
+
+## Example Usage
+
+```javascript showLineNumbers
+const blob = new Blob(['Hello, World!'], { type: 'text/plain' });
+blob.text().then(console.log); // Outputs: "Hello, World!"
+```
